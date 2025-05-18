@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Chatbot</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; }
+    #chatbox { height: 400px; overflow-y: auto; padding: 10px; border-bottom: 1px solid #ccc; }
+    #user-input { width: 100%; padding: 10px; box-sizing: border-box; }
+    .message { margin: 5px 0; }
+    .user { text-align: right; color: blue; }
+    .bot { text-align: left; color: green; }
+  </style>
+</head>
+<body>
+  <div id="chatbox"></div>
+  <input id="user-input" type="text" placeholder="Ask me anything..." />
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const input = document.getElementById("user-input");
+
+    function addMessage(text, className) {
+      const msg = document.createElement("div");
+      msg.className = `message ${className}`;
+      msg.textContent = text;
+      chatbox.appendChild(msg);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    input.addEventListener("keypress", async (e) => {
+      if (e.key === "Enter" && input.value.trim()) {
+        const userText = input.value.trim();
+        addMessage(userText, "user");
+        input.value = "";
+
+        const res = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText })
+        });
+        const data = await res.json();
+        addMessage(data.reply, "bot");
+      }
+    });
+  </script>
+</body>
+</html>
